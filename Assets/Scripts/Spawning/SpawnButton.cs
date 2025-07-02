@@ -1,28 +1,34 @@
-using System;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class SpawnButton : MonoBehaviour
 {
     [SerializeField] private Button button;
+    [SerializeField] private TextMeshProUGUI buttonLabel;
+    [SerializeField] private SpawnButtonConfig config;
 
-    private void Reset()
-        => button = GetComponent<Button>();
+    CharacterSpawner _Spawner;
 
     private void Awake()
     {
-        if (!button)
-            button = GetComponent<Button>();
+        button = GetComponent<Button>();
+        buttonLabel = GetComponentInChildren<TextMeshProUGUI>();
+        _Spawner = FindFirstObjectByType<CharacterSpawner>();
+
+        if (config != null && buttonLabel != null)
+            buttonLabel.text = config.buttonText;
     }
 
     private void OnEnable()
     {
         if (!button)
         {
-            Debug.LogError($"{name} <color=grey>({GetType().Name})</color>: {nameof(button)} is null!");
+            Debug.LogError($"{name} ({GetType().Name}): Button reference is missing.");
             enabled = false;
             return;
         }
+
         button.onClick.AddListener(HandleClick);
     }
 
@@ -33,7 +39,12 @@ public class SpawnButton : MonoBehaviour
 
     private void HandleClick()
     {
-        var spawner = FindFirstObjectByType<CharacterSpawner>();
-        spawner.Spawn();
+        if (config == null || _Spawner == null)
+        {
+            Debug.LogError("SpawnButton config or spawner is missing.");
+            return;
+        }
+
+        _Spawner.Spawn(config.setupModels, config.animatorController);
     }
 }

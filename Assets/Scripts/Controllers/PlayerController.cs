@@ -25,6 +25,8 @@ public class PlayerController : MonoBehaviour, ISetup<IPlayerControllerModel>
         }
         if (Model.JumpInput?.action != null)
             Model.JumpInput.action.performed += HandleJumpInput;
+
+        ConsoleManager._Instance.SendLog("Character configured");
     }
     private void OnDisable()
     {
