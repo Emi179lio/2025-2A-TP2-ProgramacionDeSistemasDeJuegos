@@ -1362,6 +1362,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   logText: {fileID: 1419503741}
   consoleUI: {fileID: 236260334}
+  commandInputField: {fileID: 535659094}
 --- !u!1 &866836235
 GameObject:
   m_ObjectHideFlags: 0
@@ -1604,7 +1605,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 663901848}
         m_TargetAssemblyTypeName: ConsoleManager, Assembly-CSharp
-        m_MethodName: ProcessCommand
+        m_MethodName: SubmitCommandFromButton
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2148,8 +2149,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1301750026}
-  - component: {fileID: 1301750028}
-  - component: {fileID: 1301750027}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -2177,46 +2176,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
---- !u!114 &1301750027
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1301750025}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Padding:
-    m_Left: 5
-    m_Right: 5
-    m_Top: 5
-    m_Bottom: 5
-  m_ChildAlignment: 0
-  m_Spacing: 5
-  m_ChildForceExpandWidth: 1
-  m_ChildForceExpandHeight: 1
-  m_ChildControlWidth: 1
-  m_ChildControlHeight: 0
-  m_ChildScaleWidth: 0
-  m_ChildScaleHeight: 0
-  m_ReverseArrangement: 0
---- !u!114 &1301750028
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1301750025}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_HorizontalFit: 0
-  m_VerticalFit: 1
 --- !u!1 &1355819185
 GameObject:
   m_ObjectHideFlags: 0
@@ -2373,6 +2332,7 @@ GameObject:
   - component: {fileID: 1419503740}
   - component: {fileID: 1419503742}
   - component: {fileID: 1419503741}
+  - component: {fileID: 1419503743}
   m_Layer: 5
   m_Name: CommandPrefab
   m_TagString: Untagged
@@ -2394,10 +2354,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1301750026}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 50}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 600, y: -18.9}
+  m_SizeDelta: {x: 1190, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1419503741
 MonoBehaviour:
@@ -2419,7 +2379,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: NEW COMMAND HERE
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2498,6 +2458,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1419503739}
   m_CullTransparentMesh: 1
+--- !u!114 &1419503743
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1419503739}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 0
+  m_VerticalFit: 1
 --- !u!1 &1482325946
 GameObject:
   m_ObjectHideFlags: 0
