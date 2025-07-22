@@ -18,7 +18,7 @@ public class CharacterSpawner : MonoBehaviour
     {
         if (_instance != null)
         {
-            ConsoleManager._Instance?.SendLog("Error: solo puede haber un Spawner activo.");
+            ConsoleManager._Instance?.SendLog("Error: only have a one CharacterSpawner active.");
             Destroy(gameObject);
             return;
         }
