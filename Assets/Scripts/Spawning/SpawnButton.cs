@@ -6,7 +6,7 @@ public class SpawnButton : MonoBehaviour
 {
     [SerializeField] private Button button;
     [SerializeField] private TextMeshProUGUI buttonLabel;
-    [SerializeField] private SpawnButtonConfig config;
+    [HideInInspector] public SpawnButtonConfig config;
 
     CharacterSpawner _Spawner;
 

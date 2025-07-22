@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 public class ConsoleManager : MonoBehaviour, ILogHandler
 {
@@ -14,6 +15,7 @@ public class ConsoleManager : MonoBehaviour, ILogHandler
     private ILogHandler unityLogHandler;
     private Dictionary<string, string> aliases = new();
     private Dictionary<string, System.Action<string>> commands = new();
+    private Dictionary<string, string> commandDescriptions = new();
 
     private void Awake()
     {
@@ -43,13 +45,13 @@ public class ConsoleManager : MonoBehaviour, ILogHandler
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.F1) && consoleUI != null)
+        if (GameManager.OnPressF1() && consoleUI != null)
         {
             consoleUI.SetActive(!consoleUI.activeSelf);
 
             if (consoleUI.activeSelf && commandInputField != null)
             {
-                commandInputField.ActivateInputField(); 
+                commandInputField.ActivateInputField();
             }
         }
     }
@@ -71,28 +73,75 @@ public class ConsoleManager : MonoBehaviour, ILogHandler
 
     private void RegisterCommands()
     {
+        RegisterAlias("pa", "playanimation");
+        RegisterAlias("anima", "playanimation");
+        RegisterAlias("h", "help");
+
+        commandDescriptions["help"] = "help [command] — Displays all commands or details of a specific one.";
+        commandDescriptions["aliasses"] = "aliasses <command> — Lists the aliases registered for a specific command.";
+        commandDescriptions["playanimation"] = "playanimation <AnimationName> — Plays the animation on all characters.";
+
         commands["help"] = arg =>
         {
             if (string.IsNullOrEmpty(arg))
             {
                 SendLog("Available commands:");
                 foreach (var cmd in commands.Keys)
-                    SendLog($"- {cmd}");
+                {
+                    if (commandDescriptions.TryGetValue(cmd, out string description))
+                        SendLog($"- {description}");
+                    else
+                        SendLog($"- {cmd}");
+                }
             }
             else
             {
                 if (commands.ContainsKey(arg))
-                    SendLog($"Command '{arg}' is registered. Method: {commands[arg].Method.Name}");
+                {
+                    if (commandDescriptions.TryGetValue(arg, out string description))
+                        SendLog(description);
+                    else
+                        SendLog($"Command '{arg}' is registered but has no description.");
+                }
                 else
+                {
                     SendLog($"Command '{arg}' not found.");
+                }
             }
         };
 
-        commands["aliasses"] = arg =>
+        commands["aliasses"] = commandName =>
         {
-            SendLog("Registered aliases:");
-            foreach (var a in aliases)
-                SendLog($"{a.Key} => {a.Value}");
+            if (string.IsNullOrEmpty(commandName))
+            {
+                if (aliases.Count == 0)
+                {
+                    SendLog("No aliases registered.");
+                    return;
+                }
+
+                SendLog("All registered aliases:");
+                foreach (var a in aliases)
+                    SendLog($"- {a.Key} -> {a.Value}");
+            }
+            else
+            {
+                var matchingAliases = aliases
+                    .Where(a => a.Value == commandName)
+                    .Select(a => a.Key)
+                    .ToList();
+
+                if (matchingAliases.Count > 0)
+                {
+                    SendLog($"Aliases registered for '{commandName}':");
+                    foreach (var alias in matchingAliases)
+                        SendLog($"- {alias}");
+                }
+                else
+                {
+                    SendLog($"No aliases found for command '{commandName}'.");
+                }
+            }
         };
 
         commands["playanimation"] = animationName =>
@@ -103,24 +152,38 @@ public class ConsoleManager : MonoBehaviour, ILogHandler
                 return;
             }
 
-            var characters = FindObjectsOfType<Character>();
+            var characters = Object.FindObjectsByType<Character>(FindObjectsSortMode.None);
             int played = 0;
+            int missing = 0;
+
             foreach (var c in characters)
             {
                 var anim = c.GetComponentInChildren<Animator>();
                 if (anim)
                 {
-                    anim.Play(animationName);
-                    played++;
+                    if (anim.HasState(0, Animator.StringToHash(animationName)))
+                    {
+                        anim.Play(animationName);
+                        played++;
+                    }
+                    else
+                    {
+                        missing++;
+                    }
                 }
             }
 
             if (played > 0)
+            {
                 SendLog($"Played animation '{animationName}' on {played} character(s).");
+                if (missing > 0)
+                    SendLog($"Warning: {missing} character(s) do not have the animation '{animationName}'.");
+            }
             else
-                SendLog($"No Animator found on any Character.");
+            {
+                SendLog($"No characters had the animation '{animationName}'.");
+            }
         };
-
     }
 
     public void ExecuteCommand(string input)

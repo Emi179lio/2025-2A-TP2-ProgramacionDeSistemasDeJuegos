@@ -6,21 +6,50 @@ using System.Collections;
 public class CharacterSpawner : MonoBehaviour
 {
     [SerializeField] private Character prefab;
-    [SerializeField] private ScriptableObject[] setupModels;
+    [SerializeField] private PlayerControllerModelSO playerControllerModel;
+    [SerializeField] private SpawnButtonConfig[] setupModels;
     [SerializeField] private RuntimeAnimatorController animatorController;
 
     private static Dictionary<Type, List<Type>> interfaceCache = new Dictionary<Type, List<Type>>();
 
-    public void Spawn(ScriptableObject[] setupModels, RuntimeAnimatorController animatorController)
+    public static CharacterSpawner _instance;
+
+    private void Awake()
     {
-        if (prefab == null)
+        if (_instance != null)
         {
-            ConsoleManager._Instance.SendLog("Spawner Error: Character prefab is not assigned.");
+            ConsoleManager._Instance?.SendLog("Error: solo puede haber un Spawner activo.");
+            Destroy(gameObject);
             return;
         }
 
-        StartCoroutine(SpawnCoroutine(setupModels, animatorController));
+        _instance = this;
+
+        SpawnButton[] _P = FindObjectsByType<SpawnButton>(FindObjectsSortMode.None);
+
+        for (int i = 0; i < setupModels.Length && i < _P.Length; i++)
+        {
+            _P[i].config = setupModels[i];
+        }
     }
+
+    public void Spawn(ScriptableObject[] additionalModels, RuntimeAnimatorController animatorController)
+    {
+        var models = new List<ScriptableObject>(additionalModels);
+
+        if (playerControllerModel != null)
+        {
+            models.Add(playerControllerModel);
+            ConsoleManager._Instance.SendLog("PlayerControllerModel added to setup.");
+        }
+        else
+        {
+            ConsoleManager._Instance.SendLog("Warning: PlayerControllerModel is not assigned.");
+        }
+
+        StartCoroutine(SpawnCoroutine(models.ToArray(), animatorController));
+    }
+
 
     private IEnumerator SpawnCoroutine(ScriptableObject[] setupModels, RuntimeAnimatorController animatorController)
     {
@@ -30,12 +59,31 @@ public class CharacterSpawner : MonoBehaviour
 
         yield return null;
 
-        var setupComponents = result.GetComponentsInChildren<MonoBehaviour>(true);
+        // Get components and ensure PlayerController is present
+        var setupComponentsList = new List<MonoBehaviour>(result.GetComponentsInChildren<MonoBehaviour>(true));
+
+        bool hasPlayerControllerModel = false;
+        foreach (var model in setupModels)
+        {
+            if (model is IPlayerControllerModel)
+            {
+                hasPlayerControllerModel = true;
+                break;
+            }
+        }
+
+        var playerController = result.GetComponent<PlayerController>();
+        if (hasPlayerControllerModel && playerController == null)
+        {
+            playerController = result.gameObject.AddComponent<PlayerController>();
+            setupComponentsList.Add(playerController);
+            ConsoleManager._Instance.SendLog("PlayerController was missing and has been added.");
+        }
 
         const int componentsPerFrame = 5;
         int processedComponents = 0;
 
-        foreach (var component in setupComponents)
+        foreach (var component in setupComponentsList)
         {
             if (component == null) continue;
 
